@@ -39,7 +39,9 @@ def pipelineFeatureBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
-        stage("Testing"){}
+        stageDockerBuild("Docker Build"){
+            sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
+        }
     }
 }
 def pipelinePullRequest(){
