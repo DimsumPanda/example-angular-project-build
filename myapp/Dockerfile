@@ -1,14 +1,12 @@
 ### STAGE 1: Build ###
 
 # We label our stage as ‘builder’
-FROM node:15 as builder
+FROM node:10-alpine as builder
 
 COPY package.json package-lock.json ./
-# COPY package.json ./
-## Storing node modules on a separate layer will prevent unnecessary npm installs at each build
 
-# RUN npm ci && mkdir /ng-app 
-# RUN mv ./node_modules ./ng-app
+## Storing node modules on a separate layer will prevent unnecessary npm installs at each build
+RUN npm ci && mkdir /ng-app && mv ./node_modules ./ng-app
 
 WORKDIR /ng-app
 
