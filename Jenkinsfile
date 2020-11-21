@@ -36,7 +36,7 @@ def pipelineFeatureBranch(){
         checkout scm
         tag = env.BRANCH_NAME.minus("feature/")
         dockerfile_path = "myapp/Dockerfile"
-        build_path = "myapp"
+        build_path = "myapp/."
         stage("Docker Build"){
             sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
         }
