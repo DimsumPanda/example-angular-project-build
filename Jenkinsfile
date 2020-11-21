@@ -29,7 +29,7 @@ def pipelineMasterBranch(){
         tag = env.BRANCH_NAME.minus("feature/")
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp"
-        stageDockerBuild("Docker Build"){
+        stage("Docker Build"){
             sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
         }
         // cleanWs()
@@ -39,7 +39,7 @@ def pipelineFeatureBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
-        stageDockerBuild("Docker Build"){
+        stage("Docker Build"){
             sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
         }
     }
