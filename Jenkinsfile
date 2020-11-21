@@ -24,18 +24,32 @@ if("${env.BRANCH_NAME}".matches("master")){
 def pipelineMasterBranch(){
     node("master"){
         cleanWs()
+        setUpJobProperties()
         stage("Testing"){}
+        // cleanWs()
     }
 }
 def pipelineFeatureBranch(){
     node("master"){
         cleanWs()
+        setUpJobProperties()
         stage("Testing"){}
     }
 }
 def pipelinePullRequest(){
     node("master"){
         cleanWs()
+        setUpJobProperties()
         stage("Testing"){}
     }
+}
+// ================================================
+// Stages
+// ================================================
+
+// ================================================
+// Functions
+// ================================================
+def setUpJobProperties(){
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '2', numToKeepStr: '5'))])
 }
