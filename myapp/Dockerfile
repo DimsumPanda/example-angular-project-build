@@ -1,7 +1,7 @@
 ### STAGE 1: Build ###
 
 # We label our stage as ‘builder’
-FROM node:10-alpine as builder
+FROM node:latest as builder
 
 COPY package.json package-lock.json ./
 
@@ -20,7 +20,7 @@ RUN npm run ng build -- --prod --output-path=dist
 
 ### STAGE 2: Setup ###
 
-FROM nginx:1.14.1-alpine
+FROM nginx:latest
 
 ## Copy our default nginx config
 COPY nginx/default.conf /etc/nginx/conf.d/
