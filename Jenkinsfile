@@ -5,6 +5,7 @@ GITHUB_ACCOUNT_CREDSID = "github-account"
 // Branching Strategy
 // ================================================
 echo 'BRANCH_NAME: ' + env.BRANCH_NAME
+
 if("${env.BRANCH_NAME}".matches("master")){
     echo 'Master Branch Pipeline'
     pipelineMasterBranch()
@@ -25,7 +26,12 @@ def pipelineMasterBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
-        stage("Testing"){}
+        tag = env.BRANCH_NAME.minus("feature/")
+        dockerfile_path = "myapp/Dockerfile"
+        build_path = "myapp"
+        stageDockerBuild("Docker Build"){
+            sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
+        }
         // cleanWs()
     }
 }
