@@ -69,7 +69,7 @@ def pipelineFeatureBranch(){
         stageImageBuild(image_name, dockerfile_path, build_path)
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
         dir('deploy'){
-            checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
+            checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git")
             stageTerraformInit(tfstatefile_key)
             stageTerraformDestroy(tfstatefile_key,image_name,tag)
             stageTerraformApply(tfstatefile_key,image_name,tag,registry)
