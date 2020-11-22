@@ -61,6 +61,10 @@ def pipelineFeatureBranch(){
 
         stageImageBuild(image_name, dockerfile_path, build_path)
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
+        dir('deploy'){
+            checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
+            stageTerraformDestroy()
+        }
         
     }
 }
@@ -89,9 +93,29 @@ def stageImagePush(registry_credsid, registry, image_name, tag){
         }
     }
 }
+def stageTerraformDestroy(){
+    withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
+        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+        env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+        env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+        
+        sh """
+            terraform init
+            terraform destroy --auto-approve
+        """
+    }
+}
 // ================================================
 // Functions
 // ================================================
 def setUpJobProperties(){
     properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '2', numToKeepStr: '5'))])
+}
+def checkoutSCM( scm_url, account_creds){
+    checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+    doGenerateSubmoduleConfigurations: false, 
+    extensions: [$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true]], 
+    submoduleCfg: [],
+    userRemoteConfigs: [[credentialsId: account_creds, 
+        url: scm_url]]])
 }
