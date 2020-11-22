@@ -94,16 +94,21 @@ def stageImagePush(registry_credsid, registry, image_name, tag){
     }
 }
 def stageTerraformDestroy(){
-    withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
-        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-        env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
-        env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
-        
-        sh """
-            terraform init
-            terraform destroy --auto-approve
-        """
+    stage("Terraform Destroy"){
+        withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
+            string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+            env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+            env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+            
+            terraform_path = "/usr/local/bin/terraform"
+
+            sh """
+                ${terraform_path} terraform init
+                ${terraform_path} terraform destroy --auto-approve
+            """
+        }
     }
+
 }
 // ================================================
 // Functions
@@ -112,10 +117,8 @@ def setUpJobProperties(){
     properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '2', numToKeepStr: '5'))])
 }
 def checkoutSCM( scm_url, account_creds){
-    checkout([$class: 'GitSCM', branches: [[name: 'master']],
-    doGenerateSubmoduleConfigurations: false, 
-    extensions: [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true]], 
-    submoduleCfg: [],
+    checkout([$class: 'GitSCM', branches: [[name: 'main']],
+    extensions: [[$class: 'CloneOption', shallow: true]], 
     userRemoteConfigs: [[credentialsId: account_creds, 
         url: scm_url]]])
 }
