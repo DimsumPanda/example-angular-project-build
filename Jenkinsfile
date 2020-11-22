@@ -46,7 +46,7 @@ def pipelineMasterBranch(){
                 checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
                 stageTerraformInit(tfstatefile_key)
                 stageTerraformDestroy(tfstatefile_key,image_name,tag)
-                stageTerraformApply(tfstatefile_key,image_name,tag)
+                stageTerraformApply(tfstatefile_key,image_name,registry)
             }
         } else {
             echo "No git tag attached to the commit, image is not pushed to repository. No resources will be deployed."
@@ -74,7 +74,7 @@ def pipelineFeatureBranch(){
             checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
             stageTerraformInit(tfstatefile_key)
             stageTerraformDestroy(tfstatefile_key,image_name,tag)
-            stageTerraformApply(tfstatefile_key,image_name,tag)
+            stageTerraformApply(tfstatefile_key,image_name,tag,registry)
         }
         
     }
@@ -128,17 +128,17 @@ def stageTerraformDestroy(tfstatefile_key,image_name,tag){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}' -var='application_version=${tag}'
+            ${terraform_path} destroy --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}'
         """
     }
 }
-def stageTerraformApply(tfstatefile_key,image_name,tag){
+def stageTerraformApply(tfstatefile_key,image_name,tag,registry){
     stage("Terraform Apply"){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
             ${terraform_path} plan
-            ${terraform_path} apply --auto-approve -var='application_name=${image_name}' -var='application_version=${tag}'
+            ${terraform_path} apply --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}' -var='image_registry=${registry}'
         """
     }
 }

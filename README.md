@@ -6,4 +6,14 @@ There are two types of pipeline syntax in Jenkins: scripted and declarative. Bot
 
 The Jenkinsfile in this project is written in scripted pipeline for its flexibiility and extensibilty. 
 
-The intended users of the example are for people new to writing Jenkins Pipelines.
+## Objective
+Create an autoscaling group (ASG) of EC2 instances. The pipeline will build the application and push the image into Dockerhub. The image will then be used to spin up a container in each EC2 instance in the ASG. The loadbalancer would expose the application through its DNS.
+
+## Prerequisites
+- Jenkins instance
+- Jenkins have terraform version 0.12.x installed
+- Github account
+- Dockerhub account
+- AWS account
+
+## 
