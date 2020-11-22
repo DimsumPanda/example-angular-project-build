@@ -31,7 +31,7 @@ def pipelineMasterBranch(){
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        registry = "thedimsumpanda/prod"
+        registry = "thedimsumpanda"
         image_name = "example-angular-project"
         tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() // checks if there a git tag on the last commit
 
@@ -77,10 +77,10 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
 }
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
-        withCredentials([string(credentialsId: registry_id, variable: 'PASSWORD')]) {
+    withCredentials([usernamePassword(credentialsId: '', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
             sh "docker logout"
             sh "docker tag ${image_name}:${tag} docker.io/${registry}/${image_name}:${tag}"
-            sh 'docker login docker.io --username thedimsumpanda --password $PASSWORD'
+            sh 'docker login docker.io --username $USERNAME --password $PASSWORD'
             sh "docker push docker.io/${registry}/${image_name}:${tag}"
         }
     }
