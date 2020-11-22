@@ -27,7 +27,19 @@ def pipelineMasterBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
+        checkout scm
+        
+        dockerfile_path = "myapp/Dockerfile"
+        build_path = "myapp/."
+        registry = "example-angular-project"
+        image_name = "example-angular-project"
+        tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() // checks if there a git tag on the last commit
 
+        stageImageBuild(image_name, tag, dockerfile_path, build_path)
+        if(tag){
+            stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
+        }
+        
         // cleanWs()
     }
 }
@@ -68,9 +80,11 @@ def stageImageScan(registry_url, image_name, tag){
     echo "Image Scan Completed"
 }
 def stageImagePush(registry_id, registry, image_name, tag){
-    withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-        sh "docker login ${registry} --username ${USERNAME}, --password ${PASSWORD}"
-        sh "docker push ${registry}/${image_name}:${tag}"
+    stage("Image Push"){
+        withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+            sh "docker login ${registry} --username $USERNAME, --password-stdin $PASSWORD"
+            sh "docker push ${registry}/${image_name}:${tag}"
+        }
     }
 }
 // ================================================
