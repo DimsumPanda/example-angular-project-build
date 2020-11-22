@@ -84,6 +84,7 @@ def stageImageScan(registry_url, image_name, tag){
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
         withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+            sh 'docker tag $image_name $registry/$image_name:$tag'
             sh 'docker login $registry --username $USERNAME --password $PASSWORD'
             sh "docker push ${registry}/${image_name}:${tag}"
         }
