@@ -1,5 +1,6 @@
-// Jenkins Credential IDs used in the file
-GITHUB_ACCOUNT_CREDSID = "github-account"
+// Jenkins Credential IDs used in the pipeline
+GITHUB_CREDSID = "github-account"
+DOCKERHUB_CREDSID = "dockerhub-account"
 
 // ================================================
 // Branching Strategy
@@ -26,6 +27,8 @@ def pipelineMasterBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
+        stageDockerBuild(tag, dockerfile_path, build_path)
+        stageImageScan(registry_url, image_name, tag)
         // cleanWs()
     }
 }
@@ -34,12 +37,16 @@ def pipelineFeatureBranch(){
         cleanWs()
         setUpJobProperties()
         checkout scm
-        tag = env.BRANCH_NAME.minus("feature/")
+        
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        stage("Docker Build"){
-            sh "docker build --no-cache --tag ${tag} -f ${dockerfile_path} ${build_path}"
-        }
+        registry = "example-angular-project-dev"
+        image_name = "example-angular-project"
+        tag = env.BRANCH_NAME.minus("feature/")
+
+        stageImageBuild(image_name, tag, dockerfile_path, build_path)
+        stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
+        // cleanWs()
     }
 }
 def pipelinePullRequest(){
@@ -52,7 +59,21 @@ def pipelinePullRequest(){
 // ================================================
 // Stages
 // ================================================
-
+def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String build_path="."){
+    stage("Image Build"){
+        sh "docker build --no-cache --tag ${image_name}:${tag} -f ${dockerfile_path} ${build_path}"
+    }
+}
+def stageImageScan(registry_url, image_name, tag){
+    // some image scan here
+    echo "Image Scan Completed"
+}
+def stageImagePush(registry_id, registry, image_name, tag){
+    withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: '$PASSWORD', usernameVariable: '$USERNAME')]) {
+        sh "docker login ${registry} --username ${USERNAME}, --password ${PASSWORD}"
+        sh "docker push ${registry}/${image_name}:${tag}"
+    }
+}
 // ================================================
 // Functions
 // ================================================
