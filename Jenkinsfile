@@ -33,11 +33,15 @@ def pipelineMasterBranch(){
         build_path = "myapp/."
         registry = "thedimsumpanda"
         image_name = "example-angular-project"
-        tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() // checks if there a git tag on the last commit
+
+        // checks if there a git tag on the last commit
+        tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() 
 
         stageImageBuild(image_name, dockerfile_path, build_path)
         if(tag){
             stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
+        } else {
+            echo "No git tag attached to the commit, image is not pushed to repository."
         }
         
         // cleanWs()
