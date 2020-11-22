@@ -109,7 +109,6 @@ def stageTerraformInit(tfstatefile_key){
             string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
             
             // Set TF environment variables
-            
             env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
             env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
 
@@ -147,6 +146,5 @@ def setUpJobProperties(){
 def checkoutSCM( scm_url, account_creds){
     checkout([$class: 'GitSCM', branches: [[name: 'main']],
     extensions: [[$class: 'CloneOption', shallow: true]], 
-    userRemoteConfigs: [[credentialsId: account_creds, 
-        url: scm_url]]])
+    userRemoteConfigs: [[credentialsId: account_creds, url: scm_url]]])
 }
