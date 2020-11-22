@@ -75,9 +75,9 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
         sh "docker build --no-cache --tag ${image_name}:${tag} -f ${dockerfile_path} ${build_path}"
     }
 }
-def stageImagePush(registry_id, registry, image_name, tag){
+def stageImagePush(registry_credsid, registry, image_name, tag){
     stage("Image Push"){
-    withCredentials([usernamePassword(credentialsId: '', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+    withCredentials([usernamePassword(registry_credsid: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
             sh "docker logout"
             sh "docker tag ${image_name}:${tag} docker.io/${registry}/${image_name}:${tag}"
             sh 'docker login docker.io --username $USERNAME --password $PASSWORD'
