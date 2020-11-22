@@ -120,7 +120,7 @@ def stageTerraformDestroy(tfstatefile_key){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve -backend-config='key=${tfstatefile_key}'
+            ${terraform_path} destroy --auto-approve
         """
     }
 }
@@ -129,8 +129,8 @@ def stageTerraformApply(tfstatefile_key){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} plan -backend-config='key=${tfstatefile_key}'
-            ${terraform_path} apply --auto-approve -backend-config='key=${tfstatefile_key}'
+            ${terraform_path} plan
+            ${terraform_path} apply --auto-approve
         """
     }
 }
