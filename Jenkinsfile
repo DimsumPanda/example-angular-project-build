@@ -51,8 +51,8 @@ def pipelineFeatureBranch(){
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        registry = "thedimsumpanda/dev"
-        image_name = "example-angular-project"
+        registry = "thedimsumpanda"
+        image_name = "example-angular-project-dev"
         tag = env.BRANCH_NAME.minus("feature/")
 
         stageImageBuild(image_name, tag, dockerfile_path, build_path)
