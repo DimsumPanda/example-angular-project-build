@@ -65,7 +65,7 @@ def pipelineFeatureBranch(){
             checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
             stageTerraformInit()
             stageTerraformDestroy()
-            stageTerraformDeploy()
+            stageTerraformApply()
         }
         
     }
@@ -126,7 +126,7 @@ def stageTerraformDestroy(){
         }
     }
 }
-def stageTerraformDeploy(){
+def stageTerraformApply(){
     stage("Terraform Destroy"){
         withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
             string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
@@ -136,7 +136,7 @@ def stageTerraformDeploy(){
             terraform_path = "/usr/local/bin/terraform"
 
             sh """
-                ${terraform_path} deploy --auto-approve
+                ${terraform_path} apply --auto-approve
             """
         }
     }
