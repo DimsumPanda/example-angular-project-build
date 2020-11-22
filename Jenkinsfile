@@ -63,7 +63,9 @@ def pipelineFeatureBranch(){
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
         dir('deploy'){
             checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
+            stageTerraformInit()
             stageTerraformDestroy()
+            stageTerraformDeploy()
         }
         
     }
@@ -93,6 +95,22 @@ def stageImagePush(registry_credsid, registry, image_name, tag){
         }
     }
 }
+
+def stageTerraformInit(){
+    stage("Terraform Init"){
+        withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
+            string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+            env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+            env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+            
+            terraform_path = "/usr/local/bin/terraform"
+
+            sh """
+                ${terraform_path} init
+            """
+        }
+    }
+}
 def stageTerraformDestroy(){
     stage("Terraform Destroy"){
         withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
@@ -103,12 +121,25 @@ def stageTerraformDestroy(){
             terraform_path = "/usr/local/bin/terraform"
 
             sh """
-                ${terraform_path} terraform init
-                ${terraform_path} terraform destroy --auto-approve
+                ${terraform_path} destroy --auto-approve
             """
         }
     }
+}
+def stageTerraformDeploy(){
+    stage("Terraform Destroy"){
+        withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
+            string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+            env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
+            env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
+            
+            terraform_path = "/usr/local/bin/terraform"
 
+            sh """
+                ${terraform_path} deploy --auto-approve
+            """
+        }
+    }
 }
 // ================================================
 // Functions
