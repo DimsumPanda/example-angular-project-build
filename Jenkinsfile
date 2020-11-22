@@ -142,5 +142,5 @@ def setUpJobProperties(){
 def checkoutSCM( scm_url){
     checkout([$class: 'GitSCM', branches: [[name: 'main']],
     extensions: [[$class: 'CloneOption', shallow: true]], 
-    userRemoteConfigs: [[credentialsId: account_creds, url: scm_url]]])
+    userRemoteConfigs: [[url: scm_url]]])
 }
