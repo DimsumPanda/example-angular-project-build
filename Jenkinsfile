@@ -31,7 +31,7 @@ def pipelineMasterBranch(){
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        registry = "example-angular-project"
+        registry = "thedimsumpanda/prod"
         image_name = "example-angular-project"
         tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() // checks if there a git tag on the last commit
 
@@ -51,7 +51,7 @@ def pipelineFeatureBranch(){
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        registry = "example-angular-project-dev"
+        registry = "thedimsumpanda/dev"
         image_name = "example-angular-project"
         tag = env.BRANCH_NAME.minus("feature/")
 
