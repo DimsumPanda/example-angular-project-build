@@ -128,7 +128,7 @@ def stageTerraformDestroy(tfstatefile_key,image_name,tag){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}' -var='version=${tag}'
+            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}' -var='application_version=${tag}'
         """
     }
 }
@@ -138,7 +138,7 @@ def stageTerraformApply(tfstatefile_key,image_name,tag){
 
         sh """
             ${terraform_path} plan
-            ${terraform_path} apply --auto-approve -var='application_name=${image_name}' -var='version=${tag}'
+            ${terraform_path} apply --auto-approve -var='application_name=${image_name}' -var='application_version=${tag}'
         """
     }
 }
