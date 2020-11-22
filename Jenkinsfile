@@ -78,9 +78,10 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
         withCredentials([string(credentialsId: registry_id, variable: 'PASSWORD')]) {
-            sh "docker tag ${image_name}:${tag} ${registry}/${image_name}:${tag}"
+            sh "docker logout"
+            sh "docker tag ${image_name}:${tag} docker.io/${registry}/${image_name}:${tag}"
             sh 'docker login docker.io --username thedimsumpanda --password $PASSWORD'
-            sh "docker push ${registry}/${image_name}:${tag}"
+            sh "docker push docker.io/${registry}/${image_name}:${tag}"
         }
     }
 }
