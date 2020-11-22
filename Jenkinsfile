@@ -27,8 +27,7 @@ def pipelineMasterBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
-        stageDockerBuild(tag, dockerfile_path, build_path)
-        stageImageScan(registry_url, image_name, tag)
+
         // cleanWs()
     }
 }
@@ -69,7 +68,7 @@ def stageImageScan(registry_url, image_name, tag){
     echo "Image Scan Completed"
 }
 def stageImagePush(registry_id, registry, image_name, tag){
-    withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: '$PASSWORD', usernameVariable: '$USERNAME')]) {
+    withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
         sh "docker login ${registry} --username ${USERNAME}, --password ${PASSWORD}"
         sh "docker push ${registry}/${image_name}:${tag}"
     }
