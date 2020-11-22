@@ -139,7 +139,7 @@ def stageTerraformApply(tfstatefile_key,image_name,tag,registry){
 def setUpJobProperties(){
     properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '2', numToKeepStr: '5'))])
 }
-def checkoutSCM( scm_url, account_creds){
+def checkoutSCM( scm_url){
     checkout([$class: 'GitSCM', branches: [[name: 'main']],
     extensions: [[$class: 'CloneOption', shallow: true]], 
     userRemoteConfigs: [[credentialsId: account_creds, url: scm_url]]])
