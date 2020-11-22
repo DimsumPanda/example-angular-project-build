@@ -57,7 +57,7 @@ def pipelineFeatureBranch(){
 
         stageImageBuild(image_name, tag, dockerfile_path, build_path)
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
-        // cleanWs()
+        
     }
 }
 def pipelinePullRequest(){
@@ -84,7 +84,7 @@ def stageImageScan(registry_url, image_name, tag){
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
         withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-            sh 'docker login $registry --username $USERNAME --password-stdin $PASSWORD'
+            sh 'docker login $registry --username $USERNAME --password $PASSWORD'
             sh "docker push ${registry}/${image_name}:${tag}"
         }
     }
