@@ -51,7 +51,7 @@ def pipelineFeatureBranch(){
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
-        registry = "thedimsumpanda"
+        registry = "thedimsumpanda" // can be a separate registry
         image_name = "example-angular-project-dev"
         tag = env.BRANCH_NAME.minus("feature/")
 
@@ -77,7 +77,7 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
 }
 def stageImagePush(registry_credsid, registry, image_name, tag){
     stage("Image Push"){
-    withCredentials([usernamePassword(registry_credsid: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+    withCredentials([usernamePassword(registry_credsid: registry_credsid, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
             sh "docker logout"
             sh "docker tag ${image_name}:${tag} docker.io/${registry}/${image_name}:${tag}"
             sh 'docker login docker.io --username $USERNAME --password $PASSWORD'
