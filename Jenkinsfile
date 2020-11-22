@@ -75,17 +75,11 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
         sh "docker build --no-cache --tag ${image_name}:${tag} -f ${dockerfile_path} ${build_path}"
     }
 }
-def stageImageScan(registry_url, image_name, tag){
-    stage("Image Scan"){
-        // some image scan here
-        echo "Image Scan Completed"
-    }
-}
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
         withCredentials([string(credentialsId: registry_id, variable: 'PASSWORD')]) {
             sh "docker tag ${image_name}:${tag} ${registry}/${image_name}:${tag}"
-            sh 'docker login --username thdimsumpanda --password $PASSWORD'
+            sh 'docker login --username thedimsumpanda --password $PASSWORD'
             sh "docker push ${registry}/${image_name}:${tag}"
         }
     }
