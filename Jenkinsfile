@@ -33,18 +33,24 @@ def pipelineMasterBranch(){
         build_path = "myapp/."
         registry = "thedimsumpanda"
         image_name = "example-angular-project"
-
         // checks if there a git tag on the last commit
         tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() 
+        tfstatefile_key = "global/s3/${image_name}-${tag}.tfstate"
 
         stageImageBuild(image_name, dockerfile_path, build_path)
+        
         if(tag){
             stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
+            dir('deploy'){
+                checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
+                stageTerraformInit(tfstatefile_key)
+                stageTerraformApply(tfstatefile_key)
+            }
         } else {
-            echo "No git tag attached to the commit, image is not pushed to repository."
+            echo "No git tag attached to the commit, image is not pushed to repository. No resources will be deployed."
         }
         
-        // cleanWs()
+
     }
 }
 def pipelineFeatureBranch(){
