@@ -112,7 +112,7 @@ def setUpJobProperties(){
     properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '2', numToKeepStr: '5'))])
 }
 def checkoutSCM( scm_url, account_creds){
-    checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+    checkout([$class: 'GitSCM', branches: [[name: 'master']],
     doGenerateSubmoduleConfigurations: false, 
     extensions: [[$class: 'CloneOption', depth: 1, noTags: true, reference: '', shallow: true]], 
     submoduleCfg: [],
