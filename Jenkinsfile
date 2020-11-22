@@ -1,11 +1,9 @@
 // Jenkins Credential IDs used in the pipeline
-GITHUB_CREDSID = "github-account"
 DOCKERHUB_CREDSID = "dockerhub-account"
-
+TERRAFORM_PATH    = "/usr/local/bin/terraform"
 // ================================================
 // Branching Strategy
 // ================================================
-echo 'BRANCH_NAME: ' + env.BRANCH_NAME
 
 if("${env.BRANCH_NAME}".matches("master")){
     echo 'Master Branch Pipeline'
@@ -43,7 +41,7 @@ def pipelineMasterBranch(){
         if(tag){
             stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
             dir('deploy'){
-                checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
+                checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git")
                 stageTerraformInit(tfstatefile_key)
                 stageTerraformDestroy(tfstatefile_key,image_name,tag)
                 stageTerraformApply(tfstatefile_key,image_name,registry)
@@ -114,11 +112,9 @@ def stageTerraformInit(tfstatefile_key){
             
             env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
             env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
-            
-            terraform_path = "/usr/local/bin/terraform"
 
             sh """
-                ${terraform_path} init -backend-config='key=${tfstatefile_key}' 
+                ${TERRAFORM_PATH} init -backend-config='key=${tfstatefile_key}' 
             """
         }
     }
@@ -128,7 +124,7 @@ def stageTerraformDestroy(tfstatefile_key,image_name,tag){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}'
+            ${TERRAFORM_PATH} destroy --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}'
         """
     }
 }
@@ -137,8 +133,8 @@ def stageTerraformApply(tfstatefile_key,image_name,tag,registry){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} plan
-            ${terraform_path} apply --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}' -var='image_registry=${registry}'
+            ${TERRAFORM_PATH} plan
+            ${TERRAFORM_PATH} apply --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}' -var='image_registry=${registry}'
         """
     }
 }
