@@ -35,6 +35,7 @@ def pipelineMasterBranch(){
         image_name = "example-angular-project"
         // checks if there a git tag on the last commit
         tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() 
+        tag = tag.replaceAll("\\.","-")
         tfstatefile_key = "global/s3/${image_name}-${tag}.tfstate"
 
         stageImageBuild(image_name, dockerfile_path, build_path)
@@ -127,7 +128,7 @@ def stageTerraformDestroy(tfstatefile_key,image_name,tag){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}${tag}'
+            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}' -var='version=${tag}'
         """
     }
 }
@@ -137,7 +138,7 @@ def stageTerraformApply(tfstatefile_key,image_name,tag){
 
         sh """
             ${terraform_path} plan
-            ${terraform_path} apply --auto-approve -var='application_name=${image_name}${tag}'
+            ${terraform_path} apply --auto-approve -var='application_name=${image_name}' -var='version=${tag}'
         """
     }
 }
