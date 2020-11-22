@@ -38,13 +38,14 @@ def pipelineMasterBranch(){
         tfstatefile_key = "global/s3/${image_name}-${tag}.tfstate"
 
         stageImageBuild(image_name, dockerfile_path, build_path)
-        
+
         if(tag){
             stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
             dir('deploy'){
                 checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
                 stageTerraformInit(tfstatefile_key)
-                stageTerraformApply(tfstatefile_key)
+                stageTerraformDestroy(tfstatefile_key,image_name,tag)
+                stageTerraformApply(tfstatefile_key,image_name,tag)
             }
         } else {
             echo "No git tag attached to the commit, image is not pushed to repository. No resources will be deployed."
@@ -71,8 +72,8 @@ def pipelineFeatureBranch(){
         dir('deploy'){
             checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
             stageTerraformInit(tfstatefile_key)
-            stageTerraformDestroy(tfstatefile_key)
-            stageTerraformApply(tfstatefile_key)
+            stageTerraformDestroy(tfstatefile_key,image_name,tag)
+            stageTerraformApply(tfstatefile_key,image_name,tag)
         }
         
     }
@@ -116,27 +117,27 @@ def stageTerraformInit(tfstatefile_key){
             terraform_path = "/usr/local/bin/terraform"
 
             sh """
-                ${terraform_path} init -backend-config='key=${tfstatefile_key}'
+                ${terraform_path} init -backend-config='key=${tfstatefile_key}' 
             """
         }
     }
 }
-def stageTerraformDestroy(tfstatefile_key){
+def stageTerraformDestroy(tfstatefile_key,image_name,tag){
     stage("Terraform Destroy"){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve
+            ${terraform_path} destroy --auto-approve -var='application_name=${image_name}${tag}'
         """
     }
 }
-def stageTerraformApply(tfstatefile_key){
+def stageTerraformApply(tfstatefile_key,image_name,tag){
     stage("Terraform Apply"){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
             ${terraform_path} plan
-            ${terraform_path} apply --auto-approve
+            ${terraform_path} apply --auto-approve -var='application_name=${image_name}${tag}'
         """
     }
 }
