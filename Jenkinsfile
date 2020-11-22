@@ -58,14 +58,15 @@ def pipelineFeatureBranch(){
         registry = "thedimsumpanda"
         image_name = "example-angular-project-dev"
         tag = env.BRANCH_NAME.minus("feature/")
+        tfstatefile_key = "global/s3/${image_name}-${tag}.tfstate"
 
         stageImageBuild(image_name, dockerfile_path, build_path)
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
         dir('deploy'){
             checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git", GITHUB_CREDSID)
-            stageTerraformInit()
-            stageTerraformDestroy()
-            stageTerraformApply()
+            stageTerraformInit(tfstatefile_key)
+            stageTerraformDestroy(tfstatefile_key)
+            stageTerraformApply(tfstatefile_key)
         }
         
     }
@@ -96,7 +97,7 @@ def stageImagePush(registry_credsid, registry, image_name, tag){
     }
 }
 
-def stageTerraformInit(){
+def stageTerraformInit(tfstatefile_key){
     stage("Terraform Init"){
         withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
             string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
@@ -109,27 +110,27 @@ def stageTerraformInit(){
             terraform_path = "/usr/local/bin/terraform"
 
             sh """
-                ${terraform_path} init
+                ${terraform_path} init -backend-config='key=${tfstatefile_key}'
             """
         }
     }
 }
-def stageTerraformDestroy(){
+def stageTerraformDestroy(tfstatefile_key){
     stage("Terraform Destroy"){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} destroy --auto-approve
+            ${terraform_path} destroy --auto-approve -backend-config='key=${tfstatefile_key}'
         """
     }
 }
-def stageTerraformApply(){
+def stageTerraformApply(tfstatefile_key){
     stage("Terraform Apply"){
         terraform_path = "/usr/local/bin/terraform"
 
         sh """
-            ${terraform_path} plan
-            ${terraform_path} apply --auto-approve
+            ${terraform_path} plan -backend-config='key=${tfstatefile_key}'
+            ${terraform_path} apply --auto-approve -backend-config='key=${tfstatefile_key}'
         """
     }
 }
