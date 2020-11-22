@@ -100,6 +100,9 @@ def stageTerraformInit(){
     stage("Terraform Init"){
         withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
             string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+            
+            // Set TF environment variables
+            
             env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
             env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
             
@@ -113,32 +116,21 @@ def stageTerraformInit(){
 }
 def stageTerraformDestroy(){
     stage("Terraform Destroy"){
-        withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
-            string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-            env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
-            env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
-            
-            terraform_path = "/usr/local/bin/terraform"
+        terraform_path = "/usr/local/bin/terraform"
 
-            sh """
-                ${terraform_path} destroy --auto-approve
-            """
-        }
+        sh """
+            ${terraform_path} destroy --auto-approve
+        """
     }
 }
 def stageTerraformApply(){
-    stage("Terraform Destroy"){
-        withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'), 
-            string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-            env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY_ID
-            env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_ACCESS_KEY
-            
-            terraform_path = "/usr/local/bin/terraform"
+    stage("Terraform Apply"){
+        terraform_path = "/usr/local/bin/terraform"
 
-            sh """
-                ${terraform_path} apply --auto-approve
-            """
-        }
+        sh """
+            ${terraform_path} plan
+            ${terraform_path} apply --auto-approve
+        """
     }
 }
 // ================================================
