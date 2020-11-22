@@ -27,7 +27,7 @@ def pipelineMasterBranch(){
     node("master"){
         cleanWs()
         setUpJobProperties()
-        checkout scm
+        def scmVars = checkout scm
         
         dockerfile_path = "myapp/Dockerfile"
         build_path = "myapp/."
@@ -35,7 +35,7 @@ def pipelineMasterBranch(){
         image_name = "example-angular-project"
         tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() // checks if there a git tag on the last commit
 
-        stageImageBuild(image_name, tag, dockerfile_path, build_path)
+        stageImageBuild(image_name, dockerfile_path, build_path)
         if(tag){
             stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
         }
@@ -55,7 +55,7 @@ def pipelineFeatureBranch(){
         image_name = "example-angular-project-dev"
         tag = env.BRANCH_NAME.minus("feature/")
 
-        stageImageBuild(image_name, tag, dockerfile_path, build_path)
+        stageImageBuild(image_name, dockerfile_path, build_path)
         stageImagePush(DOCKERHUB_CREDSID, registry, image_name, tag)
         
     }
@@ -70,16 +70,16 @@ def pipelinePullRequest(){
 // ================================================
 // Stages
 // ================================================
-def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String build_path="."){
+def stageImageBuild(image_name, String dockerfile_path="Dockerfile", String build_path="."){
     stage("Image Build"){
-        sh "docker build --no-cache --tag ${image_name}:${tag} -f ${dockerfile_path} ${build_path}"
+        sh "docker build --no-cache --tag ${image_name} -f ${dockerfile_path} ${build_path}"
     }
 }
 def stageImagePush(registry_credsid, registry, image_name, tag){
     stage("Image Push"){
     withCredentials([usernamePassword(credentialsId: registry_credsid, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
             sh "docker logout"
-            sh "docker tag ${image_name}:${tag} docker.io/${registry}/${image_name}:${tag}"
+            sh "docker tag ${image_name} docker.io/${registry}/${image_name}:${tag}"
             sh 'docker login docker.io --username $USERNAME --password $PASSWORD'
             sh "docker push docker.io/${registry}/${image_name}:${tag}"
         }
