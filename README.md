@@ -64,3 +64,5 @@ We will be using a public Github repo's terraform files to deploy the ASG, feel 
 2. Master branch may also run, you can stop it for now or let it run, but it will have errors since you haven't merged your changes yet.
 3. The pipeline will build the image with the Dockerfile in the myapp folder, tag and push it to DockerHub, and then deploy resources to AWS.
 4. At the end of the terraform apply, you should see the DNS of the loadbalancer with port 80 open. You can access the example application by copy and pasting the DNS URL into your browser. If you take a look inside your AWS account, you will also find the EC2s spun up with the ASG. You can go to any of the public ip addresses of the EC2s and see the app at <ip-address>:8080
+
+After deploying the application, it will take a few minutes for the instance to start running and executing the cloud-init script, but it should come up within 1-3 minutes
