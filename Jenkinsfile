@@ -120,8 +120,6 @@ def stageTerraformInit(tfstatefile_key){
 }
 def stageTerraformDestroy(tfstatefile_key,image_name,tag){
     stage("Terraform Destroy"){
-        terraform_path = "/usr/local/bin/terraform"
-
         sh """
             ${TERRAFORM_PATH} destroy --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}'
         """
@@ -129,8 +127,6 @@ def stageTerraformDestroy(tfstatefile_key,image_name,tag){
 }
 def stageTerraformApply(tfstatefile_key,image_name,tag,registry){
     stage("Terraform Apply"){
-        terraform_path = "/usr/local/bin/terraform"
-
         sh """
             ${TERRAFORM_PATH} plan
             ${TERRAFORM_PATH} apply --auto-approve -var='image_name=${image_name}' -var='image_tag=${tag}' -var='image_registry=${registry}'
