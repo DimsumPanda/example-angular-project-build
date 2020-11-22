@@ -76,13 +76,15 @@ def stageImageBuild(image_name, tag, String dockerfile_path="Dockerfile", String
     }
 }
 def stageImageScan(registry_url, image_name, tag){
-    // some image scan here
-    echo "Image Scan Completed"
+    stage("Image Scan"){
+        // some image scan here
+        echo "Image Scan Completed"
+    }
 }
 def stageImagePush(registry_id, registry, image_name, tag){
     stage("Image Push"){
         withCredentials([usernamePassword(credentialsId: registry_id, passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-            sh "docker login ${registry} --username $USERNAME --password-stdin $PASSWORD"
+            sh 'docker login $registry --username $USERNAME --password-stdin $PASSWORD'
             sh "docker push ${registry}/${image_name}:${tag}"
         }
     }
