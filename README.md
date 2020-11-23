@@ -32,7 +32,7 @@ These two pieces of data will be used for terraform deployment to access AWS. Ma
 ### Modify Jenkinsfile
 **Master Pipeline**
 We'll modify the Jenkinfile in this repo for the master pipeline. We are using Github flow which consists of one master branch and feature branches that will be pulled in when they are ready.
-The master pipeline will build an image each time it's run, but it will not push the image to the registry and deploy unless it's been git tagged.
+The master pipeline will build an image each time it's run, but it will not push the image to the registry and deploy unless a tag is passed as a user input in the pipeline.
 
 **Feature Pipeline**
 Feature pipeline will allow multiple feature branches to each deploy into its own cloud environment. The branch name after the "feature/" naming convention will be used for naming resources and tagging resources.
