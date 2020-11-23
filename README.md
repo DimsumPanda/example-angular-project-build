@@ -1,6 +1,11 @@
-# Jenkinsfile
+# Example Angular Project Build
+1. [Example Angular Project - Docker Example](https://github.com/DimsumPanda/example-angular-project-build)
+2. [Example Angular Project - Create Deployment Objects with Terraform and Docker-Compose](https://github.com/DimsumPanda/example-angular-project-deploy) 
+3. [Example Angular Project - Build with Jenkinsfile](https://github.com/DimsumPanda/example-angular-project-build) (you are here)
 
-This project focuses on the build pipeline which will build and deploy a project using Jenkins, Docker, and Terraform. Most of the "myapp" files are part of the generic base angular project built in [example-anguluar-project-docker](https://github.com/DimsumPanda/example-angular-project-docker).
+## Jenkinsfile
+
+This is the third part of this example pipeline project. We will focus on the build pipeline which will build and deploy a project using Jenkins, Docker, and Terraform. The "myapp" files were created in [part 1](https://github.com/DimsumPanda/example-angular-project-build) and the pipeline uses the terraform files from [part 2](https://github.com/DimsumPanda/example-angular-project-deploy).
 
 There are two types of pipeline syntax in Jenkins: scripted and declarative. Both lends itself to much of the functionality in the Apache Groovy language. Pipelines, for the most part, are executed synchronously, but there is flexibiliy to extend and leverage parallel stages (in scripted syntax).
 
@@ -17,21 +22,23 @@ Feature branches are intended to be pushed to a separate image repository than t
 - Github account
 - Dockerhub account
 - AWS account
+- You have completed tutorial 2 (Deployment Objects)
 
 ## Get Started - AwS and Jenkins Credentials
 1. Fork or clone this repo so you can modify and save in your own Github repository.
 2. Create an AWS Access Key if you haven't done so already. If you need help setting up, you can reference the AWS documentation [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
 3. Save access key credentials into Jenkins Credentials:
-- Save AWSAccessKeyId as a secret-text credential with credentials ID: `AWS_ACCESS_KEY_ID`
-- Save AWSSecretKey as a secret-text credential with credentials ID: `AWS_SECRET_ACCESS_KEY`
+  - Save AWSAccessKeyId as a secret-text credential with credentials ID: `AWS_ACCESS_KEY_ID`
+  - Save AWSSecretKey as a secret-text credential with credentials ID: `AWS_SECRET_ACCESS_KEY`
 These two pieces of data will be used for terraform deployment to access AWS. Make sure the IAM user has access to create resources in the account.
 4. Next save the Dockerhub credentials id as a username-password Jenkins Credential with credentials ID:`dockerhub-account`
 5. save Github credentials as username-password Jenkins Credential with credentails ID: "github-account" 
-6. For this example, I would like to be able to SSH into the machines, so I have saved a key pair called `jenkins-sshkey` and added the sshkey locally. This key is added to the terraform for the EC2 instances, if you would like replace it with another name, one way you can override the "jenkins-sshkey" name is by adding this at the end of line 127 and line 135 `-var='sshkey_name=<your-key-name>` 
+6. For this example, I would like to be able to SSH into the machines, so I have saved a key pair called `jenkins-sshkey` and added the sshkey locally. This key is added to the terraform for the EC2 instances, if you would like replace it with another name, one way you can override the "jenkins-sshkey" name is by adding this at the end of line 127 and line 135 `-var='sshkey_name=<your-key-name>` or you can change the default value as mentioned in [part 2](https://github.com/DimsumPanda/example-angular-project-deploy).
 
 ### Modify Jenkinsfile
 **Master Pipeline**
 We'll modify the Jenkinfile in this repo for the master pipeline. We are using Github flow which consists of one master branch and feature branches that will be pulled in when they are ready.
+
 The master pipeline will build an image each time it's run, but it will not push the image to the registry and deploy unless a tag is passed as a user input in the pipeline.
 
 **Feature Pipeline**
@@ -39,14 +46,15 @@ Feature pipeline will allow multiple feature branches to each deploy into its ow
 
 1. Create a feature branch, e.g. `git checkout -b "feature/test"`
 2. Modify the TERRAFORM_PATH if needed. If you had set it on the $PATH, edit the path and replace line 3 with "terraform"
+3. Update the DEPLOY_REPO URL to the repo you creaetd in [part 2](https://github.com/DimsumPanda/example-angular-project-deploy).
 2. Modify the pipelineMasterBranch():
-- replace line 32 with the name of your DockerHub registry which would be your Dockerhub account name.
+  - replace line 32 with the name of your DockerHub registry which would be your Dockerhub account name.
 3. Modify the pipelineFeatureBranch():
-- replace line 67 with the name of your Dockerhub registry which would be your Dockerhub account name.
+  - replace line 67 with the name of your Dockerhub registry which would be your Dockerhub account name.
 4. You will need to create the registries on Dockerhub, feel free to modify the "image_name" to match the repository name you create in your Dockerhub account.
 5. Save your changes and commit the code to your own Github repository
 
-We will be using a public Github repo's terraform files to deploy the ASG, feel free to check it out [here](https://github.com/DimsumPanda/example-angular-project-deploy.git). If you would like to modify the terraform files used here (sorry it's not a module right now), you can clone/fork the repo into your own repository and then replace the URL in the Jenkinsfile with your own.
+We will be using a public Github repo's terraform files to deploy the ASG [from part 2](https://github.com/DimsumPanda/example-angular-project-deploy.git).
 
 ### Set up the Jenkins Job
 1. Click on "New Item"
