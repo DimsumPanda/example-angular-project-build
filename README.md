@@ -9,7 +9,7 @@ The Jenkinsfile in this project is written in scripted pipeline for its flexibii
 ## Objective
 Create an autoscaling group (ASG) of EC2 instances. The pipeline will build the application and push the image into Dockerhub. The image will then be used to spin up a container in each EC2 instance in the ASG. The loadbalancer would expose the application through its DNS.
 
-Feature branches are intended to be pushed as a separate image from the Master Branch; however, this pipeline can be modified and customized to meet your needs.
+Feature branches are intended to be pushed to a separate image repository than the Master Branch; however, this pipeline can be modified and customized to meet your needs.
 
 ## Prerequisites
 - Jenkins instance (make sure it has enough compute/memory to run the file, if you run into issues executing the pipeline, try increasing the Jenkins machine)
@@ -27,7 +27,7 @@ Feature branches are intended to be pushed as a separate image from the Master B
 These two pieces of data will be used for terraform deployment to access AWS. Make sure the IAM user has access to create resources in the account.
 4. Next save the Dockerhub credentials id as a username-password Jenkins Credential with credentials ID:`dockerhub-account`
 5. save Github credentials as username-password Jenkins Credential with credentails ID: "github-account" 
-6. For this example, I would like to be able to SSH into the machines, so I have saved a key pair called `jenkins-sshkey` and added the sshkey locally. This key is added to the terraform for the EC2 instances, if you would like replace it with another name, one way you can override the "jenkins-sshkey" name is by adding this at the end of line 127 and line 137 `-var='sshkey_name=<your-key-name>` 
+6. For this example, I would like to be able to SSH into the machines, so I have saved a key pair called `jenkins-sshkey` and added the sshkey locally. This key is added to the terraform for the EC2 instances, if you would like replace it with another name, one way you can override the "jenkins-sshkey" name is by adding this at the end of line 127 and line 135 `-var='sshkey_name=<your-key-name>` 
 
 ### Modify Jenkinsfile
 **Master Pipeline**
@@ -42,7 +42,7 @@ Feature pipeline will allow multiple feature branches to each deploy into its ow
 2. Modify the pipelineMasterBranch():
 - replace line 32 with the name of your DockerHub registry which would be your Dockerhub account name.
 3. Modify the pipelineFeatureBranch():
-- replace line 64 with the name of your Dockerhub registry which would be your Dockerhub account name.
+- replace line 67 with the name of your Dockerhub registry which would be your Dockerhub account name.
 4. You will need to create the registries on Dockerhub, feel free to modify the "image_name" to match the repository name you create in your Dockerhub account.
 5. Save your changes and commit the code to your own Github repository
 

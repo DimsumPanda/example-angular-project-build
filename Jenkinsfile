@@ -31,9 +31,12 @@ def pipelineMasterBranch(){
         build_path = "myapp/."
         registry = "thedimsumpanda"
         image_name = "example-angular-project"
-        // checks if there a git tag on the last commit
-        tag = sh(returnStdout: true, script: "git describe --exact-match ${scmVars.GIT_COMMIT} || true").trim() 
-        tag = tag.replaceAll("\\.","-")
+        
+        // Asks for the tag value as input for Master Branch
+        timeout(30){
+            tag = stageTagInput()
+        }
+
         tfstatefile_key = "global/s3/${image_name}-${tag}.tfstate"
 
         stageImageBuild(image_name, dockerfile_path, build_path)
@@ -44,7 +47,7 @@ def pipelineMasterBranch(){
                 checkoutSCM("https://github.com/DimsumPanda/example-angular-project-deploy.git")
                 stageTerraformInit(tfstatefile_key)
                 stageTerraformDestroy(tfstatefile_key,image_name,tag)
-                stageTerraformApply(tfstatefile_key,image_name,registry)
+                stageTerraformApply(tfstatefile_key,image_name,tag,registry)
             }
         } else {
             echo "No git tag attached to the commit, image is not pushed to repository. No resources will be deployed."
@@ -133,6 +136,16 @@ def stageTerraformApply(tfstatefile_key,image_name,tag,registry){
         """
     }
 }
+def stageTagInput(){
+    stage("Tag Input"){
+        tag = input(
+            id: 'tag', message: 'Tag Value:',
+            parameters: [string(description: 'Image Tag',name: 'Tag')]
+        )
+    }
+    return tag.replaceAll("\\.","-")
+}
+
 // ================================================
 // Functions
 // ================================================
